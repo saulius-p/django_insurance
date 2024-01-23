@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Thank You for choosing our product!</h1>
+  <p>We have sent all the necessary information to the e-mail you provided, {{ email }}.</p>
+  <p>If the premium is paid on time, the insurance coverage will start on {{ start_date }}.</p>
+  <p>Please consider our other products:</p>
+  <form method="post" action="{% url 'insure-policy' %}">
+    {% csrf_token %}
+    <button type="submit">Product list</button>
+  </form>
+{% endblock %}

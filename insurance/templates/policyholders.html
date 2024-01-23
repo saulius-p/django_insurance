@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Policyholders</h1>
+<p>Policyholders insured by our company:</p>
+{% for policyholder in policyholders %}
+<li>{{ policyholder.name }} {{ policyholder.surname }}</li>
+{% endfor %}
+{% endblock %}

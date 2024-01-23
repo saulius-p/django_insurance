@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<style>
+  .car-plate-input {
+    font-weight: bold;
+    color: #3e6dab;
+    border: 1px solid #000;
+  }
+</style>
+
+
+  <h1>Calculate Premium</h1>
+  <form method="post"
+        action="{% if 'insurepolicy/property/' in request.path %}
+                    {% url 'insure-property' %}
+                {% elif 'insurepolicy/casco/' in request.path %}
+                    {% url 'insure-casco' %}
+                {% else %}
+                    {% url 'insure-mtpl' %}
+                {% endif %}">
+    {% csrf_token %}
+    {{ form | crispy }}
+
+    <button type="submit" class="btn btn-primary">Calculate Premium</button>
+  </form>
+{% endblock %}

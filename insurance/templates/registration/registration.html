@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container register">
+    <h3>Registracija</h3><br/>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input name="username" type="text" class="form-control"
+                   id="username" aria-describedby="usernameHelp" minlength="3" maxlength="20" required>
+            <small id="usernameHelp" class="form-text text-muted">Up to 150 characters.</small>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Email</label>
+            <input name="email" type="email" class="form-control"
+                   id="exampleInputEmail1" aria-describedby="emailHelp" required>
+            <small id="emailHelp" class="form-text text-muted">We will not share with anyone, we will not send any spam.
+                Required to send new password and insurance documents. </small>
+        </div>
+
+        <div class="form-group">
+            <label for="telNumber">Telephone Number</label>
+            <input name="tel_num" type="tel" class="form-control"
+                   id="telNumber" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input name="password" type="password" class="form-control"
+                   id="password" aria-describedby="pwdHelp" required>
+            <small id="pwdHelp" class="form-text text-muted">At least 8 characters. Can't just be numbers.</small>
+        </div>
+
+        <div class="form-group">
+            <label for="password2">Repeat password</label>
+            <input name="password2" type="password" class="form-control"
+                   id="password2" aria-describedby="pwd2Help" required>
+        </div>
+
+        <div class="form-group">
+            <label for="personalCode">Personal Code</label>
+            <input name="personal_code" type="text" class="form-control"
+                   id="personalCode" required>
+        </div>
+
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input name="name" type="text" class="form-control"
+                   id="name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="surname">Surname</label>
+            <input name="surname" type="text" class="form-control"
+                   id="surname" required>
+        </div>
+
+        <div class="form-group">
+            <label for="birthDate">Birth Date</label>
+            <input name="birth_date" type="date" class="form-control"
+                   id="birthDate" required>
+        </div>
+        <button type="submit" class="btn btn-primary register-button">Register</button>
+    </form>
+    <p>Already have an account? <a href="{% url 'login' %}"><strong>Login here.</strong></a></p>
+</div>
+{% endblock %}

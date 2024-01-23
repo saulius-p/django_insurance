@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Online insurance</h1>
+<p>During the existence of our company, we insured {{ num_policyholders }} policyholders.</p>
+
+<form action="add/" method="post">
+
+    {% csrf_token %}
+
+    Enter 1st number: <input type="text" name="num1"><br>
+    Enter 2nd number: <input type="text" name="num2"><br>
+    <input type="submit">
+</form>
+
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<body>
+
+    <h1>Welcome to Your Insurance Website</h1>
+
+    <!-- Button to Insure a Policy -->
+    <a href="{% url 'insure-policy' %}">
+         <button style="width: 200px;">Insure a Policy</button>
+    </a>
+
+    <br>
+
+    <!-- Button to File an Insurance Claim -->
+    <a href="{% url 'file-claim' %}">
+        <button style="width: 200px;">File an Insurance Claim</button>
+    </a>
+
+</body>
+
+{% endblock %}

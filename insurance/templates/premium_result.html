@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Premium Calculation Result</h1>
+  <p>The calculated premium for {{ policy_duration }} day insurance is: {{ premium }}.</p>
+  <form method="post" action="{% if 'insurepolicy/property/' in request.path %}
+                                  {% url 'buy-property-policy' %}
+                              {% elif 'insurepolicy/casco/' in request.path %}
+                                  {% url 'buy-casco-policy' %}
+                              {% else %}
+                                  {% url 'buy-mtpl-policy' %}
+                              {% endif %}">
+    {% csrf_token %}
+    <button type="submit">Buy Policy</button>
+  </form>
+{% endblock %}

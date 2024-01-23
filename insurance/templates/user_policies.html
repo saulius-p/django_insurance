@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>My policies:</h1>
+<img class="rounded-circle" src="{{ user.profile.picture.url}}" width="20px" height="30px"/>
+{% if policies_list %}
+    {% for policy in policies_list %}
+        <li {# class="{% if egz.is_overdue %}text-danger
+                  {% else %}text-success
+                   {% endif %}" #}>
+            <a href="">
+            {{ policy.id }} {{policy.start_date}} {{policy.end_date}}</a>
+            {{ policy.policyholder }}
+        </li>
+    {% endfor %}
+{% else %}
+    <p>Šiuo metu jūs neturit paėmęs jokių knygų.</p>
+{% endif %}
+{% endblock %}
+

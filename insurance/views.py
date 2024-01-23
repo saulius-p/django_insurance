@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 from django.conf import settings
 
-from .models import Policyholder, Policy, Car, MTPLData, PropertyData, Risk, CASCOData
+from .models import Policyholder, Policy, Car, MTPLData, PropertyData, Risk, CASCOData, Claim
 from .forms import UserUpdateForm, ProfileUpdateForm, PremiumCalculationFormProperty, \
     PremiumCalculationFormCasco, PremiumCalculationFormMtpl
 from .pricing_functions import calculate_premium_for_mtpl, calculate_premium_for_property, calculate_premium_for_casco
@@ -535,8 +535,14 @@ def register_user(request):
 
 @login_required
 def file_claim(request):
+
+    user = request.user
+    policyholder = Policyholder.objects.get(user=user)
+    policies = Policy.objects.filter(policyholder=policyholder)
+    context = {"policies":policies}
+
     if request.method != "POST":
-        return render(request, 'claim_form.html')
+        return render(request, 'claim_form.html', context=context)
 
     # If POST, we take data from the claim form.
     incident_date = request.POST.get('incident_date')  # In case key was not found, the returned value would be None.
@@ -545,6 +551,28 @@ def file_claim(request):
     claimant_email = request.POST.get('claimant_email')
     claimant_tel_num = request.POST.get('claimant_tel_num')
     supporting_documents = request.FILES.get('supporting_documents')
+    selected_policy = request.POST.get("selected_policy")
+
+    # Only for TESTING
+    print(incident_date)
+    print(type(incident_date))
+    print(description)
+    print(claimant_name)
+    print(claimant_email)
+    print(claimant_tel_num)
+    print(supporting_documents)
+    print(selected_policy)
+    print(type(selected_policy))
+    print("POLICY OBJECT")
+    policy = Policy.objects.get(policy_number=selected_policy)
+    print(policy)
+    ################################################################
+
+    new_claim = Claim.objects.create(
+        incident_date=incident_date,
+        description_of_the_incident=description,
+        policy=policy,
+    )
 
     # Placeholder for saving info to the database.
 

@@ -15,8 +15,8 @@ urlpatterns = [
     path("buy-property-policy/", views.buy_property_policy, name="buy-property-policy"),
     path("add/", views.add, name="add-path"),
 
-
     path("register/", views.register_user, name="register-url"),
     path("profile/", views.profile, name="profile-url"),
-    #path("my-policies/", views.PoliciesByUserListView.as_view(), name="my-policies"),
+    path("my-policies/", views.PoliciesByUserListView.as_view(), name="my-policies"),
+    path("my-policies/<uuid:pk>", views.PolicyDetailView.as_view(), name="policy-one"),
 ]

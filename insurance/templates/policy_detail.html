@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .light-comment-card {
+        background-color: #f5f4d7;
+        border: 1px solid #ddd;
+    }
+</style>
+
+<div class="card mb-3">
+    <div class="card-header">
+        <h4 class="card-title">Policy Number: {{ policy.policy_number }}</h4>
+        <p class="card-text"><strong>Insurance Start Date:</strong> {{ policy.start_date }}</p>
+        <p class="card-text"><strong>Insurance End Date:</strong> {{ policy.end_date }} </p>
+    </div>
+
+
+</div>
+
+
+
+{% endblock %}

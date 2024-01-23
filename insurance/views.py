@@ -456,7 +456,8 @@ def buy_property_policy(request):
     # Logic for sending emails
 
     # Here we specify FULL path to the PDF file.
-    pdf_file_path = os.path.join(settings.MEDIA_ROOT, "insurance_rules", "property_insurance_rules.pdf").replace("\\", "/")
+    pdf_file_path = os.path.join(settings.MEDIA_ROOT, "insurance_rules", "property_insurance_rules.pdf").replace("\\",
+                                                                                                                 "/")
 
     # FOR TESTING PURPOSES
     print("TEST")
@@ -551,11 +552,23 @@ def file_claim(request):
     return HttpResponse(html_content)
 
 
-# class PoliciesByUserListView(LoginRequiredMixin, generic.ListView):
-#     model = Policy
-#     template_name = "user_policies.html"
-#     context_object_name = "policies_list"
-#
-#     def get_queryset(self):
-#         return Policy.objects.filter(policyholder=self.request.user.id)  # We can add .order_by().
-#
+class PoliciesByUserListView(LoginRequiredMixin, generic.ListView):  # Subclass of the parent class ListView.
+    model = Policy
+    template_name = "user_policies.html"
+    context_object_name = "policies_list"
+
+    def get_queryset(self):
+        user = self.request.user
+
+        # Retrieve the associated Policyholder object
+        policyholder = Policyholder.objects.get(user=user)
+        return Policy.objects.filter(policyholder=policyholder)  # We can add .order_by().
+
+
+class PolicyDetailView(LoginRequiredMixin, generic.DetailView):
+    model = Policy
+    context_object_name = "policy"
+    template_name = "policy_detail.html"
+
+
+

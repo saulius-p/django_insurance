@@ -12,18 +12,61 @@
 <div class="card mb-3">
     <div class="card-header">
         <h4 class="card-title">Policy Number: {{ policy.policy_number }}</h4>
+    </div>
+    <div class="card-header">
+        <p class="card-text"><strong>Type of insurance:</strong> {{ policy.policy_type }}</p>
         <p class="card-text"><strong>Insurance Start Date:</strong> {{ policy.start_date }}</p>
         <p class="card-text"><strong>Insurance End Date:</strong> {{ policy.end_date }} </p>
     </div>
+    <div class="card-header">
+        <p class="card-text"><strong>Insurance premium:</strong> {{ policy.insurance_premium }} </p>
+    </div>
+
+    {% if policy.policy_type == "CASCO" %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Automobile data:
+                </h5>
+                {# Since there is no related_name created in the models file for this case, we use default name cascodata.#}
+                <p class="card-text">Plate No.: {{ policy.cascodata.car.plate_number }}</p>
+                <p class="card-text">Make: {{ policy.cascodata.car.make }}</p>
+                <p class="card-text">Model: {{ policy.cascodata.car.model }}</p>
+                <p class="card-text">Body: {{ policy.cascodata.car.body }}</p>
+                <p class="card-text">Mass: {{ policy.cascodata.car.mass }}</p>
+                <p class="card-text">Engine Displacement: {{ policy.cascodata.car.engine_displacement }}</p>
+                <p class="card-text">Power: {{ policy.cascodata.car.power }}</p>
+                <p class="card-text">Fuel: {{ policy.cascodata.car.fuel }}</p>
+                <p class="card-text">Manufacture Year: {{ policy.cascodata.car.manufacture_year }}</p>
+                <p class="card-text">Owner Personal Code: {{ policy.cascodata.car.owner_personal_code }}</p>
+            </div>
+        </div>
+    {% elif policy.policy_type == "MTPL" %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Automobile data:
+                </h5>
+                {# Since there is no related_name created in the models file for this case, we use default name cascodata.#}
+                <p class="card-text">Plate No.: {{ policy.mtpldata.car.plate_number }}</p>
+                <p class="card-text">Make: {{ policy.mtpldata.car.make }}</p>
+                <p class="card-text">Model: {{ policy.mtpldata.car.model }}</p>
+                <p class="card-text">Body: {{ policy.mtpldata.car.body }}</p>
+                <p class="card-text">Mass: {{ policy.mtpldata.car.mass }}</p>
+                <p class="card-text">Engine Displacement: {{ policy.mtpldata.car.engine_displacement }}</p>
+                <p class="card-text">Power: {{ policy.mtpldata.car.power }}</p>
+                <p class="card-text">Fuel: {{ policy.mtpldata.car.fuel }}</p>
+                <p class="card-text">Manufacture Year: {{ policy.mtpldata.car.manufacture_year }}</p>
+                <p class="card-text">Owner Personal Code: {{ policy.mtpldata.car.owner_personal_code }}</p>
+            </div>
+        </div>
+    {% else %}
+    <p>This is property policy.</p>
+    {% endif %}
 
     {% if policy.end_date > today and policy.end_date != policy.start_date %}
-        <div class="card-body">
-            <a class="btn btn-secondary btn-sm" href="{% url 'cancel-policy' policy.policy_number %}">Cancel policy</a>
-        </div>
+    <div class="card-body">
+        <a class="btn btn-secondary btn-sm" href="{% url 'cancel-policy' policy.policy_number %}">Cancel policy</a>
+    </div>
     {% endif %}
 
 </div>
-
-
-
 {% endblock %}

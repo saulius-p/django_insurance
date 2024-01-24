@@ -1,5 +1,7 @@
+from uuid import UUID
+
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import generic
@@ -20,26 +22,7 @@ import os
 
 
 def index(request):
-    # num_policyholders = Policyholder.objects.count()
-    # context = {
-    #     "num_policyholders": num_policyholders,
-    # }
     return render(request, "index.html")
-
-
-def policyholders(request):
-    policyholders = Policyholder.objects.all()
-    context = {
-        "policyholders": policyholders,
-    }
-    return render(request, "policyholders.html", context=context)
-
-
-def add(request):
-    val1 = int(request.POST["num1"])
-    val2 = int(request.POST["num2"])
-    res = val1 + val2
-    return render(request, "result.html", {"res": res})
 
 
 def insure_policy(request):
@@ -599,6 +582,20 @@ class PoliciesByUserListView(LoginRequiredMixin, generic.ListView):  # Subclass 
 
 
 class PolicyDetailView(LoginRequiredMixin, generic.DetailView):
+    """
+    Display detailed information about a policy for authenticated users.
+
+    Attributes:
+        model (class): The Django model class representing policies.
+        context_object_name (str): The name used to identify the policy object in the template context.
+        template_name (str): Name of the template, which is used to render details of the specific policy.
+
+    Methods:
+        get_context_data(**kwargs): Sends additional context data to the template.
+
+    Mixins:
+        LoginRequiredMixin: Ensures that only authenticated users can access the policy details.
+    """
     model = Policy
     context_object_name = "policy"
     template_name = "policy_detail.html"
@@ -610,8 +607,20 @@ class PolicyDetailView(LoginRequiredMixin, generic.DetailView):
 
 
 # Think through if @login_required is needed
-def cancel_policy(request, policy_number):
+def cancel_policy(request: HttpRequest, policy_number: UUID) -> HttpResponse:
+    """
+    Cancel a policy based on the given policy number by changing its end date.
 
+    Parameters:
+        request (HttpRequest): The HTTP request object.
+        policy_number (UUID): Unique policy number of the policy that is chosen for cancelation.
+
+    Returns:
+        HttpResponse: A rendered HTML response with cancelation message.
+
+    Raises:
+        Http404: If the specified policy number does not exist.
+    """
     today = date.today()
     policy = get_object_or_404(Policy, policy_number=policy_number)
 
@@ -623,5 +632,3 @@ def cancel_policy(request, policy_number):
         pass  # Policy already ended. We leave end date as it is.
     policy.save()
     return render(request, 'message_of_cancelation.html', {"policy": policy})
-
-

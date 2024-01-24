@@ -597,10 +597,16 @@ class PoliciesByUserListView(LoginRequiredMixin, generic.ListView):  # Subclass 
         context["today"] = date.today()
         return context
 
+
 class PolicyDetailView(LoginRequiredMixin, generic.DetailView):
     model = Policy
     context_object_name = "policy"
     template_name = "policy_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["today"] = date.today()
+        return context
 
 
 

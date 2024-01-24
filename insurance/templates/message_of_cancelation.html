@@ -1,10 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block content %}
+  <h1>Your insurance policy is canceled!</h1>
+  <p>Insurance policy number {{ policy.policy_number }} is canceled. Your insurance coverage is no longer valid.
+      Consider renewing your insurance with different terms or choose from our other products:</p>
+  <form method="post" action="{% url 'insure-policy' %}">
+    {% csrf_token %}
+    <button type="submit">Product list</button>
+  </form>
+{% endblock %}

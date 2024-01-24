@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -15,7 +15,7 @@ from .forms import UserUpdateForm, ProfileUpdateForm, PremiumCalculationFormProp
 from .pricing_functions import calculate_premium_for_mtpl, calculate_premium_for_property, calculate_premium_for_casco
 from .helper_functions import check_passwordl
 
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import os
 
 
@@ -608,5 +608,20 @@ class PolicyDetailView(LoginRequiredMixin, generic.DetailView):
         context["today"] = date.today()
         return context
 
+
+# Think through if @login_required is needed
+def cancel_policy(request, policy_number):
+
+    today = date.today()
+    policy = get_object_or_404(Policy, policy_number=policy_number)
+
+    if policy.start_date > today:
+        policy.end_date = policy.start_date
+    elif policy.start_date <= today <= policy.end_date:
+        policy.end_date = today
+    else:
+        pass  # Policy already ended. We leave end date as it is.
+    policy.save()
+    return render(request, 'message_of_cancelation.html', {"policy": policy})
 
 

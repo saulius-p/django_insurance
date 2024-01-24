@@ -19,4 +19,7 @@ urlpatterns = [
     path("profile/", views.profile, name="profile-url"),
     path("my-policies/", views.PoliciesByUserListView.as_view(), name="my-policies"),
     path("my-policies/<uuid:pk>", views.PolicyDetailView.as_view(), name="policy-one"),
+
+    # Naming example: https://www.lrt.lt/naujienos/mokslas-ir-it
+    path("cancel-policy/<uuid:policy_number>", views.cancel_policy, name="cancel-policy"),
 ]

@@ -15,7 +15,9 @@
             <p class="card-text">Start date: {{policy.start_date}}. -- End date: {{policy.end_date}}.
             | Type of insurance: {{ policy.policy_type }}
             <br>
-            {% if policy.end_date < today %} {# If policy has ended start date won't be bigger than today for sure. #}
+            {% if policy.end_date == policy.start_date %} {# 0 duration policy is not valid. #}
+                <span style="color:red;">The insurance policy is not valid.</span>
+            {% elif policy.end_date <= today %} {# If policy has ended start date won't be bigger than today for sure. #}
                 <span style="color:red;">The insurance policy is no longer valid.</span>
             {% elif policy.start_date > today %}
                 <span style="color:orange;">Insurance coverage has not yet started.</span>

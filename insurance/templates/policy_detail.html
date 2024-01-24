@@ -15,9 +15,10 @@
         <p class="card-text"><strong>Insurance Start Date:</strong> {{ policy.start_date }}</p>
         <p class="card-text"><strong>Insurance End Date:</strong> {{ policy.end_date }} </p>
     </div>
-    {% if policy.end_date >= today %}
+
+    {% if policy.end_date > today and policy.end_date != policy.start_date %}
         <div class="card-body">
-            <a class="btn btn-secondary btn-sm" href="">Cancel policy</a>
+            <a class="btn btn-secondary btn-sm" href="{% url 'cancel-policy' policy.policy_number %}">Cancel policy</a>
         </div>
     {% endif %}
 

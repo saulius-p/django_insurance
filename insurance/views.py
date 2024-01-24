@@ -15,7 +15,7 @@ from .forms import UserUpdateForm, ProfileUpdateForm, PremiumCalculationFormProp
 from .pricing_functions import calculate_premium_for_mtpl, calculate_premium_for_property, calculate_premium_for_casco
 from .helper_functions import check_passwordl
 
-from datetime import datetime
+from datetime import datetime, date
 import os
 
 
@@ -592,6 +592,10 @@ class PoliciesByUserListView(LoginRequiredMixin, generic.ListView):  # Subclass 
         policyholder = Policyholder.objects.get(user=user)
         return Policy.objects.filter(policyholder=policyholder)  # We can add .order_by().
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["today"] = date.today()
+        return context
 
 class PolicyDetailView(LoginRequiredMixin, generic.DetailView):
     model = Policy

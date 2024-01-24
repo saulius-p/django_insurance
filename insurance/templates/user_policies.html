@@ -5,9 +5,10 @@
 {# <img class="rounded-circle" src="{{ user.profile.picture.url}}" width="20px" height="30px"/> #}
 {% if policies_list %}
     {% for policy in policies_list %}
-        <li><a href="">
+        <li><a href="{% url 'policy-one' policy.policy_number %}">
             {{ policy.policy_number }} </a>
-            Start date: {{policy.start_date}}. -- End date: {{policy.end_date}}.
+            | Start date: {{policy.start_date}}. -- End date: {{policy.end_date}}.
+            | Type of insurance: {{ policy.policy_type }}
         </li>
     {% endfor %}
 {% else %}

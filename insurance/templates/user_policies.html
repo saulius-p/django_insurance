@@ -1,18 +1,31 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>My policies:</h1>
+<div class="card-header">
+    <h1 class="card-title">My policies:</h1>
+</div>
 {# <img class="rounded-circle" src="{{ user.profile.picture.url}}" width="20px" height="30px"/> #}
 {% if policies_list %}
-    {% for policy in policies_list %}
-        <li><a href="{% url 'policy-one' policy.policy_number %}">
-            {{ policy.policy_number }} </a>
-            | Start date: {{policy.start_date}}. -- End date: {{policy.end_date}}.
+{% for policy in policies_list %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="card-title">Policy number: <a href="{% url 'policy-one' policy.policy_number %}">
+                {{ policy.policy_number }}</a>
+            </h6>
+            <p class="card-text">Start date: {{policy.start_date}}. -- End date: {{policy.end_date}}.
             | Type of insurance: {{ policy.policy_type }}
-        </li>
-    {% endfor %}
+            <br>
+            {% if policy.end_date < today %}
+            <span style="color:red;">The insurance policy is no longer valid.</span>
+            {% else %}
+            <span style="color:green;">Insurance coverage is valid.</span>
+            {% endif %}
+            </p>
+        </div>
+    </div>
+{% endfor %}
 {% else %}
-    <p>You do not have insurance policies in our company.</p>
+<p>You do not have insurance policies in our company.</p>
 {% endif %}
 {% endblock %}
 

@@ -2,12 +2,28 @@
 
 {% block content %}
 <div class="card-header">
-    <h1 class="card-title">My policies:</h1>
+    <h1 class="card-title">Search Policies:</h1>
+</div>
+
+<form method="post" action="{% url 'search-policies' %}">
+    {% csrf_token %}
+    <label for="policy_type">Policy Type:</label>
+        <select name="policy_type" id="policy_type">
+            <option value="ALL">All</option>
+            <option value="MTPL">MTPL</option>
+            <option value="CASCO">CASCO</option>
+            <option value="PROPERTY">PROPERTY</option>
+        </select>
+    <button type="submit">Search</button>
+</form>
+
+<div class="card-header">
+    <h1 class="card-title">Search results:</h1>
 </div>
 
 {# <img class="rounded-circle" src="{{ user.profile.picture.url}}" width="20px" height="30px"/> #}
-{% if policies_list %}
-{% for policy in policies_list %}
+{% if search_results %}
+{% for policy in search_results %}
     <div class="card mb-3">
         <div class="card-body">
             <h6 class="card-title">Policy number: <a href="{% url 'policy-one' policy.policy_number %}">
@@ -30,25 +46,7 @@
     </div>
 {% endfor %}
 {% else %}
-<p>You do not have insurance policies in our company.</p>
+<p>We didn't find anything.</p>
 {% endif %}
-<div class="card-header">
-<div>
-    <span>
-        {% if page_obj.has_previous%}
-            <a href="?page=1">&laquo; first</a>
-            <a href="?page={{ page_obj.previous_page_number }}">back</a>
-        {% endif %}
-        <span class="current">
-            {{ page_obj.number }} out of {{ page_obj.paginator.num_pages }}
-        </span>
-        {% if page_obj.has_next%}
-            <a href="?page={{ page_obj.next_page_number }}">next</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-        {% endif %}
-    </span>
-</div>
-</div>
+
 {% endblock %}
-
-

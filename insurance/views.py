@@ -3,13 +3,14 @@ from uuid import UUID
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpRequest
 from django.contrib.auth.models import User
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views import generic
 from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 from django.conf import settings
+
 
 from .models import Policyholder, Policy, Car, MTPLData, PropertyData, Risk, CASCOData, Claim
 from .forms import UserUpdateForm, ProfileUpdateForm, PremiumCalculationFormProperty, \
@@ -582,6 +583,30 @@ class PoliciesByUserListView(LoginRequiredMixin, generic.ListView):  # Subclass 
         context = super().get_context_data(**kwargs)
         context["today"] = date.today()
         return context
+
+
+class SearchPoliciesView(UserPassesTestMixin, generic.TemplateView):
+    template_name = "search_policies.html"
+
+    def test_func(self):
+        # Here we check if the user is in the group "Underwriters"
+        return self.request.user.groups.filter(name="Underwriters").exists()
+
+    def get(self, request, *args, **kwargs):
+        # In case of GET request
+        return render(request, self.template_name)
+
+    def post(self, request, *args, **kwargs):
+        # In case of POST request
+        policy_type = request.POST.get("policy_type")
+        print(policy_type)
+
+        if policy_type == "ALL":
+            search_results = Policy.objects.all()
+        else:
+            search_results = Policy.objects.filter(policy_type=policy_type)
+
+        return render(request, self.template_name, {"search_results": search_results})
 
 
 class PolicyDetailView(LoginRequiredMixin, generic.DetailView):

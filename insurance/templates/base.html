@@ -84,6 +84,11 @@ l-126 -111 -89 -7 c-198 -16 -464 -62 -629 -110 -201 -59 -330 -125 -437 -224
                     </svg>
                     {{ user }}</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'my-policies' %}">My policies</a></li>
+                {% for group in user.groups.all %}
+                    {% if group.name == "Underwriters" %}
+                        <li class="nav-item"><a class="nav-link" href="">All policies</a></li>
+                    {% endif %}
+                {% endfor %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}?next=/insurance">logout</a>
                 {% else %}
                 <li class="nav-item">

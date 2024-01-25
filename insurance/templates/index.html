@@ -18,6 +18,12 @@
         <button style="width: 200px;">File an Insurance Claim</button>
     </a>
 
+    <p>Groups: {% for group in user.groups.all %}
+                   {{ group }}
+               {% endfor%}
+
+    </p>
+
 </body>
 
 {% endblock %}

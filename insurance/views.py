@@ -569,6 +569,7 @@ class PoliciesByUserListView(LoginRequiredMixin, generic.ListView):  # Subclass 
     model = Policy
     template_name = "user_policies.html"
     context_object_name = "policies_list"
+    paginate_by = 4
 
     def get_queryset(self):
         user = self.request.user

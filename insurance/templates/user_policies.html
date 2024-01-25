@@ -4,6 +4,7 @@
 <div class="card-header">
     <h1 class="card-title">My policies:</h1>
 </div>
+
 {# <img class="rounded-circle" src="{{ user.profile.picture.url}}" width="20px" height="30px"/> #}
 {% if policies_list %}
 {% for policy in policies_list %}
@@ -31,6 +32,23 @@
 {% else %}
 <p>You do not have insurance policies in our company.</p>
 {% endif %}
+<div class="card-header">
+<div>
+    <span>
+        {% if page_obj.has_previous%}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">back</a>
+        {% endif %}
+        <span class="current">
+            {{ page_obj.number }} iš {{ page_obj.paginator.num_pages }}
+        </span>
+        {% if page_obj.has_next%}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+</div>
 {% endblock %}
 
 

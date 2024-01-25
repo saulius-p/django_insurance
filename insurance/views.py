@@ -522,7 +522,15 @@ def file_claim(request):
     user = request.user
     policyholder = Policyholder.objects.get(user=user)
     policies = Policy.objects.filter(policyholder=policyholder)
-    context = {"policies":policies}
+
+    context = {
+        "policies": policies,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "personal_code": policyholder.personal_code,
+        "email": user.email,
+        "tel_num": policyholder.tel_num,
+    }
 
     if request.method != "POST":
         return render(request, 'claim_form.html', context=context)
@@ -530,9 +538,6 @@ def file_claim(request):
     # If POST, we take data from the claim form.
     incident_date = request.POST.get('incident_date')  # In case key was not found, the returned value would be None.
     description = request.POST.get('description')
-    claimant_name = request.POST.get('claimant_name')
-    claimant_email = request.POST.get('claimant_email')
-    claimant_tel_num = request.POST.get('claimant_tel_num')
     supporting_documents = request.FILES.get('supporting_documents')
     selected_policy = request.POST.get("selected_policy")
 
@@ -540,9 +545,6 @@ def file_claim(request):
     print(incident_date)
     print(type(incident_date))
     print(description)
-    print(claimant_name)
-    print(claimant_email)
-    print(claimant_tel_num)
     print(supporting_documents)
     print(selected_policy)
     print(type(selected_policy))

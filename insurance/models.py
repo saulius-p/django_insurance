@@ -81,6 +81,10 @@ class CASCOData(models.Model):
     car_alarm = models.BooleanField(default=False)
     car = models.ForeignKey('Car', related_name='casco_policies', on_delete=models.CASCADE, default=1)
 
+    def __str__(self):
+        return f"Policy number: {self.policy.policy_number}. Policy start: {self.policy.start_date}. \
+                Experience: {self.driver_experience}. Make: {self.car.make}."
+
 
 class Risk(models.Model):
     property_risk = models.CharField(max_length=255, unique=True)

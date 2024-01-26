@@ -71,9 +71,25 @@ class ClaimAdmin(admin.ModelAdmin):
     get_last_name.short_description = "Last Name"
 
 
+class PolicyAdmin(admin.ModelAdmin):
+    search_fields = ("policy_number",)
+    ordering = ("start_date",)
+    list_display = ("policy_number", "start_date", "end_date", "policy_type", "get_personal_code",)
+
+    def get_personal_code(self, obj):
+        return obj.policyholder.personal_code if obj.policyholder.personal_code else None
+
+    get_personal_code.short_description = 'Personal_code'
+
+    def get_tel_num(self, obj):
+        return obj.policyholder.tel_num if obj.policyholder.tel_num else None
+
+    get_personal_code.short_description = 'Tel No.'
+
+
 admin.site.register(Policyholder, PolicyholderAdmin)
 admin.site.register(Car)
-admin.site.register(Policy)
+admin.site.register(Policy, PolicyAdmin)
 admin.site.register(MTPLData)
 admin.site.register(CASCOData)
 admin.site.register(Risk)

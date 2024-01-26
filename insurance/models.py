@@ -3,6 +3,8 @@ import uuid
 from datetime import datetime, timedelta
 from django.contrib.auth.models import User
 from PIL import Image
+from django.core.validators import FileExtensionValidator
+
 
 ########################################################################################################################
 # POLICYHOLDER TABLE
@@ -19,6 +21,7 @@ class Policyholder(models.Model):
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}. Birth date: {self.birth_date}."
+
 
 ########################################################################################################################
 # CAR TABLE
@@ -39,6 +42,7 @@ class Car(models.Model):
 
     def __str__(self):
         return f"{self.plate_number} - {self.make} {self.model}"
+
 
 ########################################################################################################################
 # POLICY TABLE
@@ -61,6 +65,7 @@ class Policy(models.Model):
 
     def __str__(self):
         return f"{self.policy_number} {self.policyholder} {self.policy_type}. Duration: {self.policy_duration}. Start month: {self.start_month}"
+
 
 ########################################################################################################################
 
@@ -119,16 +124,15 @@ class Profile(models.Model):
             img.thumbnail(new_size)
             img.save(self.picture.path)
 
+
 ########################################################################################################################
 # CLAIM TABLE
 ########################################################################################################################
 
-
 class Claim(models.Model):
     incident_date = models.DateField()
     description_of_the_incident = models.CharField(max_length=1000)
-    # supporting_documents = models.CharField(max_length=500, null=True, blank=True)
+    supporting_document = models.FileField(upload_to='supporting_documents/', null=True, blank=True)
     policy = models.ForeignKey(Policy, related_name='claims', on_delete=models.SET_NULL, null=True)
-
 
 ########################################################################################################################

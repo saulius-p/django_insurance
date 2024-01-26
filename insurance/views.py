@@ -16,7 +16,7 @@ from .models import Policyholder, Policy, Car, MTPLData, PropertyData, Risk, CAS
 from .forms import UserUpdateForm, ProfileUpdateForm, PremiumCalculationFormProperty, \
     PremiumCalculationFormCasco, PremiumCalculationFormMtpl
 from .pricing_functions import calculate_premium_for_mtpl, calculate_premium_for_property, calculate_premium_for_casco
-from .helper_functions import check_passwordl
+from .helper_functions import check_passwordl, send_policy_email, validate_car_insurance_data
 
 from datetime import datetime, date, timedelta
 import os
@@ -31,36 +31,75 @@ def insure_policy(request):
 
 
 @csrf_protect
-def register_user(request):
+def register_user(request: HttpRequest):
+    """
+        Handles user registration. Creates policyholder object in the database.
+
+        Parameters:
+        - request: HttpRequest object representing the current request.
+
+        Returns:
+        - HttpResponse: Renders the registration form page if the request method is not POST.
+                      Redirects to the registration page with error messages if validation fails.
+                      Redirects to the login page with a success message if registration is successful.
+    """
     if request.method != "POST":
         return render(request, "registration/registration.html")
 
-    # jeigu POST
-    # paimam duomenis iš formos
+    # If POST, we take data from the form.
     username = request.POST["username"]
     email = request.POST["email"]
+    tel_num = request.POST["tel_num"]
     password = request.POST["password"]
     password2 = request.POST["password2"]
+    personal_code = request.POST["personal_code"]
+    name = request.POST["name"]
+    surname = request.POST["surname"]
+    birth_date = request.POST["birth_date"]
 
     if password != password2:
-        messages.error(request, "Slaptažodžiai nesutampa!!!")
+        messages.error(request, "Passwords don't match!!!")
 
-    if User.objects.filter(username=username).exists():  # exists atiduoda True arba False
-        messages.error(request, f"Vartotojo vardas {username} užimtas!!!")
+    if not check_passwordl(password):
+        messages.error(request, "Password1 too short!!!")
+
+    if User.objects.filter(username=username).exists():  # exists returns True or False
+        messages.error(request, f"User {username} already exists!!!")
 
     if User.objects.filter(email=email).exists():
-        messages.error(request, f"Emailas {email} jau registruotas!!!")
+        messages.error(request, f"Email {email} already registered!!!")
 
     if messages.get_messages(request):
         return redirect("register-url")
 
-    User.objects.create_user(username=username, email=email, password=password)
-    messages.success(request, f"Vartotojas vardu {username} sukurtas!!!")
+    # Create the User object
+    user = User.objects.create_user(username=username, email=email, password=password, first_name=name,
+                                    last_name=surname)
+
+    # Create the Policyholder object
+    policyholder = Policyholder.objects.create(
+        user=user,
+        personal_code=personal_code,
+        birth_date=birth_date,
+        tel_num=tel_num
+    )
+    messages.success(request, f"User {username} created!!!")
     return redirect('login')
 
 
 @login_required
-def profile(request):
+def profile(request: HttpRequest):
+    """
+     View function for handling user profile updates.
+
+     Parameters:
+     - request: HttpRequest object representing the current request.
+
+     Returns:
+     - HttpResponse: Renders the user profile update page.
+                       Updates the user profile if the request method is POST and form validations pass.
+                       Redirects to the profile page with a success message if the profile is updated.
+     """
     if request.method == "POST":
         u_form = UserUpdateForm(request.POST, instance=request.user)
         p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
@@ -96,11 +135,10 @@ def insure_mtpl(request):
             plate_number = insurance_data["plate_number"]
             driver_experience = insurance_data["driver_experience"]
 
-            try:
-                car = Car.objects.get(plate_number=plate_number)
-            except Car.DoesNotExist:
-                messages.error(request, f"Car with plate number {plate_number} not found.")
-                return render(request, "premium_calculation.html", {"form": form})
+            car, validation_result = validate_car_insurance_data(request, form)
+
+            if validation_result:
+                return validation_result
 
             # PRINTS for TEST only.
             print(plate_number)
@@ -122,6 +160,7 @@ def insure_mtpl(request):
             insurance_data["premium"] = premium
 
             # We store data in the session for the use in next step.
+            # request.session is dictionary-like object
             request.session["insurance_data"] = insurance_data
 
             # PRINTS for TEST only. Compare with the print above.
@@ -176,31 +215,8 @@ def buy_mtpl_policy(request):
         car=car,
     )
 
-    # Logic for sending emails
-
-    # Here we specify FULL path to the PDF file.
-    pdf_file_path = os.path.join(settings.MEDIA_ROOT, "insurance_rules", "mtpl_reference_doc.pdf").replace("\\", "/")
-
-    # FOR TESTING PURPOSES
-    print("TEST")
-    print(pdf_file_path)
-    print("TEST")
-    if os.path.exists(pdf_file_path):
-        print("File exists!")
-    else:
-        print("File does not exist!")
-
-    # Here we create EmailMessage class object.
-
-    email_message = EmailMessage(
-        "Thank You for Choosing Our Product",
-        f"We attach all the necessary documents.",
-        settings.DEFAULT_FROM_EMAIL,
-        [user.email],
-    )
-
-    email_message.attach_file(pdf_file_path)
-    email_message.send(fail_silently=False)  # In short, "fail_silently=False" means, that errors will not be silenced.
+    # Call function that sends email
+    send_policy_email(user.email, "mtpl_reference_doc.pdf")
 
     # If the user is authenticated, redirect to the "Thank You" page
     return render(request, 'thank_you.html', {
@@ -225,14 +241,10 @@ def insure_casco(request):
             alarm_system_ind_list = insurance_data['alarm_system_indicator']  # Can be empty list, if the car
             # doesn't have alarm.
 
-            # LINE JUST FOR TESTING.
-            print(f"Alarm system indication: {alarm_system_ind_list}")
+            car, validation_result = validate_car_insurance_data(request, form)
 
-            try:
-                car = Car.objects.get(plate_number=plate_number)
-            except Car.DoesNotExist:
-                messages.error(request, f"Car with plate number {plate_number} not found.")
-                return render(request, "premium_calculation.html", {"form": form})
+            if validation_result:
+                return validation_result
 
             # PRINTS for TEST only.
             print(plate_number)
@@ -316,31 +328,8 @@ def buy_casco_policy(request):
         car=car,
     )
 
-    # Logic for sending emails
-
-    # Here we specify FULL path to the PDF file.
-    pdf_file_path = os.path.join(settings.MEDIA_ROOT, "insurance_rules", "casco_insurance_rules.pdf").replace("\\", "/")
-
-    # FOR TESTING PURPOSES
-    print("TEST")
-    print(pdf_file_path)
-    print("TEST")
-    if os.path.exists(pdf_file_path):
-        print("File exists!")
-    else:
-        print("File does not exist!")
-
-    # Here we create EmailMessage class object.
-
-    email_message = EmailMessage(
-        "Thank You for Choosing Our Product",
-        f"We attach all the necessary documents.",
-        settings.DEFAULT_FROM_EMAIL,
-        [user.email],
-    )
-
-    email_message.attach_file(pdf_file_path)
-    email_message.send(fail_silently=False)  # In short, "fail_silently=False" means, that errors will not be silenced.
+    # Call function that sends email
+    send_policy_email(user.email, "casco_insurance_rules.pdf")
 
     # If the user is authenticated, redirect to the "Thank You" page
     return render(request, 'thank_you.html', {
@@ -364,6 +353,10 @@ def insure_property(request):
             building_purpose = insurance_data['building_purpose']
             selected_risks = insurance_data['selected_risks']  # Will be not empty list because we require that at least
             # one risk must be chosen.
+
+            if start_date >= end_date:
+                messages.error(request, f"Attention! Policy end date must be bigger than policy start date.")
+                return render(request, "premium_calculation.html", {"form": form})
 
             policy_duration = (end_date - start_date).days
 
@@ -437,32 +430,8 @@ def buy_property_policy(request):
         risk_object, created = Risk.objects.get_or_create(property_risk=risk)
         new_property_record.risks.add(risk_object)
 
-    # Logic for sending emails
-
-    # Here we specify FULL path to the PDF file.
-    pdf_file_path = os.path.join(settings.MEDIA_ROOT, "insurance_rules", "property_insurance_rules.pdf").replace("\\",
-                                                                                                                 "/")
-
-    # FOR TESTING PURPOSES
-    print("TEST")
-    print(pdf_file_path)
-    print("TEST")
-    if os.path.exists(pdf_file_path):
-        print("File exists!")
-    else:
-        print("File does not exist!")
-
-    # Here we create EmailMessage class object.
-
-    email_message = EmailMessage(
-        "Thank You for Choosing Our Product",
-        f"We attach all the necessary documents.",
-        settings.DEFAULT_FROM_EMAIL,
-        [user.email],
-    )
-
-    email_message.attach_file(pdf_file_path)
-    email_message.send(fail_silently=False)  # In short, "fail_silently=False" means, that errors will not be silenced.
+    # Call function that sends email
+    send_policy_email(user.email, "property_insurance_rules.pdf")
 
     # If the user is authenticated, redirect to the "Thank You" page
     return render(request, 'thank_you.html', {
@@ -471,50 +440,7 @@ def buy_property_policy(request):
     })
 
 
-@csrf_protect
-def register_user(request):
-    if request.method != "POST":
-        return render(request, "registration/registration.html")
 
-    # If POST, we take data from the form.
-    username = request.POST["username"]
-    email = request.POST["email"]
-    tel_num = request.POST["tel_num"]
-    password = request.POST["password"]
-    password2 = request.POST["password2"]
-    personal_code = request.POST["personal_code"]
-    name = request.POST["name"]
-    surname = request.POST["surname"]
-    birth_date = request.POST["birth_date"]
-
-    if password != password2:
-        messages.error(request, "Passwords don't match!!!")
-
-    if not check_passwordl(password):
-        messages.error(request, "Password1 too short!!!")
-
-    if User.objects.filter(username=username).exists():  # exists returns True or False
-        messages.error(request, f"User {username} already exists!!!")
-
-    if User.objects.filter(email=email).exists():
-        messages.error(request, f"Email {email} already registered!!!")
-
-    if messages.get_messages(request):
-        return redirect("register-url")
-
-    # Create the User object
-    user = User.objects.create_user(username=username, email=email, password=password, first_name=name,
-                                    last_name=surname)
-
-    # Create the Policyholder object
-    policyholder = Policyholder.objects.create(
-        user=user,
-        personal_code=personal_code,
-        birth_date=birth_date,
-        tel_num=tel_num
-    )
-    messages.success(request, f"User {username} created!!!")
-    return redirect('login')
 
 
 @login_required
@@ -539,14 +465,14 @@ def file_claim(request):
     # If POST, we take data from the claim form.
     incident_date = request.POST.get('incident_date')  # In case key was not found, the returned value would be None.
     description = request.POST.get('description')
-    supporting_documents = request.FILES.get('supporting_documents')
+    supporting_document = request.FILES.get('supporting_document')
     selected_policy = request.POST.get("selected_policy")
 
     # Only for TESTING
     print(incident_date)
     print(type(incident_date))
     print(description)
-    print(supporting_documents)
+    print(supporting_document)
     print(selected_policy)
     print(type(selected_policy))
     print("POLICY OBJECT")
@@ -557,6 +483,7 @@ def file_claim(request):
     new_claim = Claim.objects.create(
         incident_date=incident_date,
         description_of_the_incident=description,
+        supporting_document=supporting_document,
         policy=policy,
     )
 
@@ -640,14 +567,14 @@ def cancel_policy(request: HttpRequest, policy_number: UUID) -> HttpResponse:
     Cancel a policy based on the given policy number by changing its end date.
 
     Parameters:
-        request (HttpRequest): The HTTP request object.
-        policy_number (UUID): Unique policy number of the policy that is chosen for cancelation.
+    - request (HttpRequest): The HTTP request object.
+    - policy_number (UUID): Unique policy number of the policy that is chosen for cancelation.
 
     Returns:
-        HttpResponse: A rendered HTML response with cancelation message.
+    - HttpResponse: A rendered HTML response with cancelation message.
 
     Raises:
-        Http404: If the specified policy number does not exist.
+    - Http404: If the specified policy number does not exist.
     """
     today = date.today()
     policy = get_object_or_404(Policy, policy_number=policy_number)

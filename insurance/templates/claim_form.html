@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1>File an Insurance Claim</h1>
-<form method="post" action="{% url 'file-claim' %}">
+<form method="post" action="{% url 'file-claim' %}" enctype="multipart/form-data">
     {% csrf_token %}
 
     <!-- Information about the incident -->
@@ -26,8 +26,8 @@
     </div>
 
     <div class="form-group">
-        <label for="supporting_documents">Supporting Documents</label>
-        <input name="supporting_documents" type="file" class="form-control-file">
+        <label for="supporting_document">Supporting Document</label>
+        <input name="supporting_document" type="file" class="form-control-file">
     </div>
 
     <div class="card mb-3">

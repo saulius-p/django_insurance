@@ -30,7 +30,8 @@ def send_policy_email(user_email: str, pdf_file_name: str) -> None:
     # Create EmailMessage class object.
     email_message = EmailMessage(
         "Thank You for Choosing Our Product",
-        f"We attach all the necessary documents.",
+        """        We attach all the necessary documents.
+        To start your insurance coverage, transfer the insurance bonus to this account LT888800000000000000001.""",
         settings.DEFAULT_FROM_EMAIL,
         [user_email],
     )

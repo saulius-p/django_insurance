@@ -2,25 +2,44 @@
 
 {% block content %}
 
+<style>
+  .button {
+    display: inline-block;
+    padding: 12px 24px;
+    font-size: 16px;
+    text-align: center;
+    text-decoration: none;
+    background-color: #7cd9d5;
+    color: #ffffff; /* White text colour */
+    border: 2px solid #3c5250; /* Small border */
+    border-radius: 25px; /* Round corners */
+    transition: background-color 0.3s ease;
+  }
+
+  .button:hover {
+    background-color: #3c7371; /* Colour on hover */
+  }
+</style>
+
 <body>
 
     <h1>Hello, this is a place where you buy INSURANCE POLICY!</h1>
     <h2>Choose a product:</h2>
 
     <a href="{% url 'insure-mtpl' %}">
-         <button style="width: 200px;">MTPL</button>
+         <button style="width: 200px;" class="button">MTPL</button>
     </a>
 
     <br>
 
     <a href="{% url 'insure-casco' %}">
-        <button style="width: 200px;">CASCO</button>
+        <button style="width: 200px;" class="button">CASCO</button>
     </a>
 
     <br>
 
     <a href="{% url 'insure-property' %}">
-        <button style="width: 200px;">PROPERTY</button>
+        <button style="width: 200px;" class="button">PROPERTY</button>
     </a>
 </body>
 

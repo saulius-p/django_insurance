@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 from django.conf import settings
+from django.db.models import Q
 
 
 from .models import Policyholder, Policy, Car, MTPLData, PropertyData, Risk, CASCOData, Claim
@@ -121,6 +122,7 @@ def profile(request: HttpRequest):
     return render(request, 'profile.html', context=context)
 
 
+@login_required
 def insure_mtpl(request):
     if request.method == 'POST':
         form = PremiumCalculationFormMtpl(request.POST)
@@ -225,6 +227,7 @@ def buy_mtpl_policy(request):
     })
 
 
+@login_required
 def insure_casco(request):
     if request.method == 'POST':
         form = PremiumCalculationFormCasco(request.POST)
@@ -338,6 +341,7 @@ def buy_casco_policy(request):
     })
 
 
+@login_required
 def insure_property(request):
     if request.method == 'POST':
         form = PremiumCalculationFormProperty(request.POST)
@@ -440,9 +444,6 @@ def buy_property_policy(request):
     })
 
 
-
-
-
 @login_required
 def file_claim(request):
 
@@ -526,12 +527,21 @@ class SearchPoliciesView(UserPassesTestMixin, generic.TemplateView):
     def post(self, request, *args, **kwargs):
         # In case of POST request
         policy_type = request.POST.get("policy_type")
-        print(policy_type)
+        last_name_fragment = request.POST.get("last_name", "")
+        print(last_name_fragment)
+
+        query = Q(policy_type=policy_type)
+
+        if last_name_fragment:
+            query &= Q(policyholder__user__last_name__icontains=last_name_fragment)
+            query_2 = Q(policyholder__user__last_name__icontains=last_name_fragment)
+        else:
+            query_2 = Q()
 
         if policy_type == "ALL":
-            search_results = Policy.objects.all()
+            search_results = Policy.objects.filter(query_2)
         else:
-            search_results = Policy.objects.filter(policy_type=policy_type)
+            search_results = Policy.objects.filter(query)
 
         return render(request, self.template_name, {"search_results": search_results})
 

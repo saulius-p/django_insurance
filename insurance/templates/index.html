@@ -2,20 +2,39 @@
 
 {% block content %}
 
+<style>
+  .button {
+    display: inline-block;
+    padding: 12px 24px;
+    font-size: 16px;
+    text-align: center;
+    text-decoration: none;
+    background-color: #7cd9d5;
+    color: #ffffff; /* White text colour */
+    border: 2px solid #3c5250; /* Small border */
+    border-radius: 25px; /* Round corners */
+    transition: background-color 0.3s ease;
+  }
+
+  .button:hover {
+    background-color: #3c7371; /* Colour on hover */
+  }
+</style>
+
 <body>
 
     <h2>Welcome to Insurance Services Online!</h2>
 
     <!-- Button to Insure a Policy -->
-    <a href="{% url 'insure-policy' %}">
-         <button style="width: 200px;">Insure a Policy</button>
+    <a href="{% url 'insure-policy' %}" >
+         <button style="width: 200px;" class="button">Insure a Policy</button>
     </a>
 
     <br>
 
     <!-- Button to File an Insurance Claim -->
-    <a href="{% url 'file-claim' %}">
-        <button style="width: 200px;">File an Insurance Claim</button>
+    <a href="{% url 'file-claim' %}" >
+        <button style="width: 200px;" class="button">File a Claim</button>
     </a>
 
 </body>
